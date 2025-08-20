@@ -1,0 +1,17 @@
+{% extends "review/base.html" %}
+
+{% block title %}{{ title }} - Review Place{% endblock %}
+
+{% block content %}
+<h1 class="text-4xl font-bold mb-8">{{ title }}</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for place in places %}
+        {% include 'review/partials/place_card.html' with place=place %}
+    {% empty %}
+        <p class="col-span-full text-center text-gray-500 text-xl">No places found.</p>
+    {% endfor %}
+</div>
+
+{% include 'review/partials/pagination.html' with page_obj=page_obj %}
+{% endblock %}

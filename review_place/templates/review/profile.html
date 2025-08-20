@@ -1,0 +1,49 @@
+{% extends "review/base.html" %}
+
+{% block title %}ข้อมูลส่วนตัว - Review Place{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg text-black">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-6">ข้อมูลส่วนตัว</h1>
+        {% if profile_user.profile_image %}
+            <img src="{{ profile_user.profile_image.url }}" alt="Profile Image" class="w-40 h-40 rounded-full object-cover mx-auto mb-4 border-4 border-blue-500">
+        {% else %}
+            <img src="/static/default.jpg" alt="Default Profile Image" class="w-40 h-40 rounded-full object-cover mx-auto mb-4 border-4 border-gray-300">
+        {% endif %}
+        <h2 class="text-2xl font-semibold">{{ profile_user.first_name }} {{ profile_user.last_name }}</h2>
+        <p class="text-gray-600">@{{ profile_user.username }}</p>
+    </div>
+
+    <div class="mt-8 border-t pt-6">
+        <h3 class="text-xl font-semibold mb-4">รายละเอียด</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">อีเมล:</p>
+                <p>{{ profile_user.email }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">เบอร์โทรศัพท์:</p>
+                <p>{{ profile_user.mobile_phone }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">เพศ:</p>
+                <p>{{ profile_user.get_gender_display }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">วันเกิด:</p>
+                <p>{{ profile_user.date_of_birth|date:"d F Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'profile_edit' %}" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition duration-300">
+            แก้ไขโปรไฟล์
+        </a>
+        <a href="{% url 'password_change' %}" class="bg-gray-600 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition duration-300">
+            เปลี่ยนรหัสผ่าน
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "review/base.html" %}
+
+{% block title %}{{ place.place_name }} - Review Place{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    {% if place.images.all %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        {% for image in place.images.all %}
+        <img src="{{ image.image.url }}" alt="{{ place.place_name }}" class="w-full h-64 object-cover">
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
+        <span class="text-gray-500 text-2xl">No Image Available</span>
+    </div>
+    {% endif %}
+
+    <div class="p-8">
+        <h1 class="text-4xl font-bold mb-4">{{ place.place_name }}</h1>
+        <div class="flex items-center mb-4">
+            <span class="text-yellow-500 text-2xl mr-2">
+                {% for i in "12345" %}
+                    {% if place.average_rating >= i|add:0 %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </span>
+            <span class="text-gray-700 text-xl">({{ place.average_rating|floatformat:1 }}/5.0) from {{ place.total_reviews }} review{{ place.total_reviews|pluralize }}</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Details</h3>
+                <p class="text-gray-700 mb-1"><span class="font-semibold">Category:</span> {{ place.get_category_display }}</p>
+                <p class="text-gray-700 mb-1"><span class="font-semibold">Location:</span> {{ place.location }}</p>
+                <p class="text-gray-700 mb-1"><span class="font-semibold">Price Range:</span> {{ place.price_range|default:"N/A" }}</p>
+                <p class="text-gray-700 mb-1"><span class="font-semibold">Open Hours:</span> {{ place.open_hours|default:"N/A" }}</p>
+                <p class="text-gray-700 mb-1"><span class="font-semibold">Contact:</span> {{ place.contact_info|default:"N/A" }}</p>
+                <p class="text-gray-700"><span class="font-semibold">Visits:</span> {{ place.visit_count }}</p>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold mb-2">Description</h3>
+                <p class="text-gray-700 whitespace-pre-line">{{ place.description|default:"No description available." }}</p>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-2">Actions</h3>
+            <div class="flex items-center space-x-4 mb-4">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'like_place' place.id %}" method="post" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            {% if user_liked_place %}
+                                Unlike
+                            {% else %}
+                                Like
+                            {% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+                <p class="text-gray-700 m-0">{{ total_likes }} like{{ total_likes|pluralize }}</p>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-2">Share this Place</h3>
+            <div class="flex space-x-4 mb-4">
+                <a href="{{ share_urls.facebook }}" target="_blank" class="text-blue-600 hover:underline share-link" data-shared-to="Facebook">Facebook</a>
+                <a href="{{ share_urls.twitter }}" target="_blank" class="text-blue-400 hover:underline share-link" data-shared-to="X (Twitter)">X (Twitter)</a>
+                <a href="{{ share_urls.linkedin }}" target="_blank" class="text-blue-700 hover:underline share-link" data-shared-to="LinkedIn">LinkedIn</a>
+                <a href="{{ share_urls.line }}" target="_blank" class="text-green-500 hover:underline share-link" data-shared-to="LINE">LINE</a>
+            </div>
+            <div class="flex items-center">
+                <input type="text" id="directShareLink" class="flex-grow border rounded-md p-2 mr-2" value="{{ place_absolute_url }}" readonly>
+                <button id="copyShareLink" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Copy Link</button>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="mb-6 flex space-x-4">
+    <a href="{% url 'edit_place' place_id=place.id %}" class="btn btn-warning">แก้ไขสถานที่</a>
+    <a href="{% url 'delete_place' place_id=place.id %}" class="btn btn-danger">ลบสถานที่</a>
+            <a href="{% url 'report_place' place_id=place.id %}" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600">Report this Place</a>
+        </div>
+        {% else %}
+        <p class="mb-6 text-gray-700">Please <a href="{% url 'login' %}?next={{ request.path }}" class="text-blue-600 hover:underline">login</a> to write a review or report this place.</p>
+        {% endif %}
+
+        <hr class="my-8">
+
+        {% if user.is_authenticated and recommended_places %}
+        <div class="recommended-section mb-8">
+            <h2 class="text-3xl font-bold mb-4">Recommended Places</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for rec_place in recommended_places %}
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                    {% if rec_place.images.all %}
+                    <img src="{{ rec_place.images.first.image.url }}" alt="{{ rec_place.place_name }}" class="w-full h-48 object-cover">
+                    {% else %}
+                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-500">No Image</span>
+                    </div>
+                    {% endif %}
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2">{{ rec_place.place_name }}</h3>
+                        <p class="text-gray-700 mb-1"><span class="font-semibold">Category:</span> {{ rec_place.get_category_display }}</p>
+                        <p class="text-gray-600 mb-4 truncate">{{ rec_place.description|default:"No description available."|truncatewords:15 }}</p>
+                        <a href="{% url 'place_detail' rec_place.id %}" class="block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <hr class="my-8">
+        </div>
+        {% endif %}
+
+        <h2 class="text-3xl font-semibold mb-6">Reviews ({{ place.total_reviews }})</h2>
+        {% if user.is_authenticated %}
+        <div class="mb-4">
+            <a href="{% url 'add_review' place_id=place.id %}" class="btn btn-primary">เพิ่มรีวิว</a>
+        </div>
+        {% endif %}
+        {% for review in reviews %}
+        <div class="border rounded-lg p-6 mb-6 bg-gray-50 shadow">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center">
+                    {% if review.user.profile_image %}
+                        <img src="{{ review.user.profile_image.url }}" alt="Profile Image of {{ review.user.username }}" class="w-10 h-10 rounded-full object-cover mr-3">
+                    {% else %}
+                        <img src="/static/default.jpg" alt="Default Profile Image" class="w-10 h-10 rounded-full object-cover mr-3">
+                    {% endif %}
+                    <div>
+                        <p class="text-lg font-semibold">{{ review.user.username }}</p>
+                        <p class="text-sm text-gray-500">{{ review.review_date|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                </div>
+                <div class="text-yellow-500 text-xl">
+                    {% for i in "12345" %}
+                        {% if review.rating >= i|add:0 %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                    <span class="text-gray-700 text-base"> ({{ review.rating }}/5)</span>
+                </div>
+            </div>
+
+            {% if review.images.all %}
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-2 mt-4">
+                {% for image in review.images.all %}
+                <img src="{{ image.image.url }}" alt="Review image by {{ review.user.username }}" class="w-full h-32 object-cover">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <p class="text-gray-700 mb-4 whitespace-pre-line">{{ review.review_text }}</p>
+
+            <div class="flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    {% if review.user == user %}
+                    <a href="{% url 'edit_review' review_id=review.id %}" class="text-blue-600 hover:underline">Edit</a>
+                    <a href="{% url 'delete_review' review_id=review.id %}" class="text-red-600 hover:underline">Delete</a>
+                    {% else %}
+                    <a href="{% url 'report_review' review_id=review.id %}" class="text-red-600 hover:underline">Report Review</a>
+                    {% endif %}
+                {% endif %}
+                {# Placeholder for helpful count and other actions #}
+                {# <span class="text-sm text-gray-500">Helpful ({{ review.helpful_count }})</span> #}
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <button class="text-sm text-blue-600 hover:underline focus:outline-none" onclick="toggleComments('comments-{{ review.id }}')">
+                    Show/Hide Comments ({{ review.comments.count }})
+                </button>
+
+                <div id="comments-{{ review.id }}" class="hidden mt-4 space-y-4">
+                    <!-- Existing Comments -->
+                    {% for comment in review.comments.all %}
+                        {% if comment.status == 'published' %}
+                        <div class="flex space-x-3">
+                            <div class="flex-shrink-0">
+                                {% if comment.user.profile_image %}
+                                    <img src="{{ comment.user.profile_image.url }}" alt="Profile Image of {{ comment.user.username }}" class="w-8 h-8 rounded-full object-cover">
+                                {% else %}
+                                    <img src="/static/default.jpg" alt="Default Profile Image" class="w-8 h-8 rounded-full object-cover">
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 bg-gray-100 rounded-lg p-3">
+                                <div class="flex justify-between items-center">
+                                    <p class="font-semibold text-sm">{{ comment.user.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ comment.created_at|timesince }} ago</p>
+                                </div>
+                                <p class="text-sm text-gray-800 mt-1">{{ comment.text }}</p>
+                                <div class="text-xs mt-2 flex space-x-3">
+                                    {% if user.is_authenticated %}
+                                        {% if user == comment.user or user.is_staff %}
+                                            <a href="{% url 'edit_comment' comment_id=comment.id %}" class="text-blue-500 hover:underline">Edit</a>
+                                            <a href="{% url 'delete_comment' comment_id=comment.id %}" class="text-red-500 hover:underline">Delete</a>
+                                        {% else %}
+                                            <a href="{% url 'report_comment' comment_id=comment.id %}" class="text-gray-500 hover:underline">Report</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-sm text-gray-500">No comments yet.</p>
+                    {% endfor %}
+
+                    <!-- Add Comment Link -->
+                    {% if user.is_authenticated %}
+                    <div class="mt-4">
+                        <a href="{% url 'add_comment' review_id=review.id %}" class="btn btn-sm btn-primary">Add Comment</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-gray-600">No reviews yet for this place.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const shareLinks = document.querySelectorAll('.share-link');
+        const copyButton = document.getElementById('copyShareLink');
+        const directShareLinkInput = document.getElementById('directShareLink');
+        const placeId = "{{ place.id }}";
+        const csrfToken = "{{ csrf_token }}";
+
+        function recordShareActivity(sharedTo) {
+            fetch("{% url 'record_share_activity' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                },
+                body: new URLSearchParams({
+                    'shared_type': 'place',
+                    'shared_id': placeId,
+                    'shared_to': sharedTo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Share activity recorded successfully!');
+                } else {
+                    console.error('Error recording share activity:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Network error recording share activity:', error);
+            });
+        }
+
+        shareLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const sharedTo = this.dataset.sharedTo;
+                const shareUrl = this.href;
+                recordShareActivity(sharedTo);
+                window.open(shareUrl, '_blank');
+            });
+        });
+
+        if (copyButton) {
+            copyButton.addEventListener('click', function() {
+                directShareLinkInput.select();
+                directShareLinkInput.setSelectionRange(0, 99999); // For mobile devices
+                document.execCommand('copy');
+                recordShareActivity('Direct Link (Copied)');
+                alert('Link copied to clipboard!');
+            });
+        }
+    });
+
+    function toggleComments(id) {
+        var element = document.getElementById(id);
+        if (element.classList.contains('hidden')) {
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

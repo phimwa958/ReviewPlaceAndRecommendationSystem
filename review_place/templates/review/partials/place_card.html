@@ -1,0 +1,23 @@
+<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    {% if place.images.all %}
+    <img src="{{ place.images.first.image.url }}" alt="{{ place.place_name }}" class="w-full h-48 object-cover">
+    {% else %}
+    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+        <span class="text-gray-500">No Image</span>
+    </div>
+    {% endif %}
+    <div class="p-6">
+        <h3 class="text-2xl font-semibold mb-2">{{ place.place_name }}</h3>
+        <p class="text-gray-700 mb-1"><span class="font-semibold">Category:</span> {{ place.get_category_display }}</p>
+        <p class="text-gray-600 mb-4 truncate">{{ place.description|default:"No description available."|slice:":100" }}</p>
+        <div class="flex items-center mb-4">
+            <span class="text-yellow-500 mr-1">
+                {% for i in "12345" %}
+                    {% if place.average_rating >= i|add:0 %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </span>
+            <span class="text-gray-600">({{ place.average_rating|floatformat:1 }}/5.0) from {{ place.total_reviews }} review{{ place.total_reviews|pluralize }}</span>
+        </div>
+        <a href="{% url 'place_detail' place.id %}" class="block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">View Details</a>
+    </div>
+</div>

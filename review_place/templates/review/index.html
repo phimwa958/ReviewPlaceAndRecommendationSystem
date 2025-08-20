@@ -1,0 +1,81 @@
+{% extends "review/base.html" %}
+
+{% block title %}Home - Review Place{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <form method="get" action="{% url 'home' %}" class="flex flex-wrap items-center gap-4">
+        <input type="text" name="search" placeholder="ค้นหาสถานที่..." class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" value="{{ search_query|default:'' }}">
+
+        <select name="category" class="p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            <option value="">ทุกหมวดหมู่</option>
+            {% for value, display in categories %}
+            <option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ display }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700">ค้นหา</button>
+    </form>
+</div>
+
+{% if is_search %}
+    {# --- Search Results --- #}
+    <h2 class="text-3xl font-bold mb-4">ผลการค้นหาสำหรับ "{{ search_query|default:'' }}"</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for place in places %}
+            {% include 'review/partials/place_card.html' with place=place %}
+        {% empty %}
+            <p class="col-span-full text-center text-gray-500 text-xl">ไม่พบสถานที่ที่ตรงกับการค้นหา</p>
+        {% endfor %}
+    </div>
+
+    {% include 'review/partials/pagination.html' with page_obj=page_obj %}
+
+{% else %}
+    {# --- Homepage Sections --- #}
+
+    {% if user.is_authenticated and recommended_places %}
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-3xl font-bold">แนะนำสำหรับคุณ</h2>
+            <a href="{% url 'place_recommendations' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {% for place in recommended_places %}
+                {% include 'review/partials/place_card.html' with place=place %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if popular_places %}
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-3xl font-bold">สถานที่ยอดนิยม</h2>
+            <a href="{% url 'place_popular' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {% for place in popular_places %}
+                {% include 'review/partials/place_card.html' with place=place %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if latest_places %}
+    <section class="mb-12">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-3xl font-bold">สถานที่ใหม่ล่าสุด</h2>
+            <a href="{% url 'place_all' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for place in latest_places %}
+                {% include 'review/partials/place_card.html' with place=place %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+{% endif %}
+{% endblock %}
