@@ -69,14 +69,14 @@
 3.  **Build and Run Containers:**
     ใช้ Docker Compose เพื่อ build image และ start บริการทั้งหมดใน detached mode
     ```bash
-    docker-compose up --build -d
+    docker compose up --build -d
     ```
     คำสั่งนี้อาจใช้เวลาสักครู่ในครั้งแรกที่รัน
 
 4.  **Apply Database Migrations:**
     รันคำสั่ง `migrate` ภายใน container ของ `web`
     ```bash
-    docker-compose exec web python manage.py migrate
+    docker compose exec web python manage.py migrate
     ```
 
 5.  **Populate Initial Data (สำคัญ):**
@@ -157,7 +157,7 @@
 
 *   **สำหรับผู้ใช้ Docker Compose:**
     ```bash
-    docker-compose exec web python "data/script python/import_from_excel.py"
+    docker compose exec web python "data/script python/import_from_excel.py"
     ```
 *   **สำหรับผู้ใช้ Manual Setup:**
     ```bash
@@ -172,12 +172,12 @@
 
 *   **Train Word2Vec Model:**
     คำสั่งนี้ใช้สำหรับสร้างโมเดลภาษาจากข้อมูล `description` ของสถานที่ทั้งหมดของเว็บไซต์ของคุณ(ตอนนี้ ใช้Vectorของระบบไม่ได้เทรนเอง)
-    *   Docker: `docker-compose exec web python manage.py train_word2vec_model`
+    *   Docker: `docker compose exec web python manage.py train_word2vec_model`
     *   Manual: `python manage.py train_word2vec_model`
 
 *   **Evaluate Recommendation System:**
     ใช้สำหรับประเมินประสิทธิภาพของระบบแนะนำด้วยเมตริกต่างๆ
-    *   Docker: `docker-compose exec web python manage.py evaluate_recommendation_system`
+    *   Docker: `docker compose exec web python manage.py evaluate_recommendation_system`
     *   Manual: `python manage.py evaluate_recommendation_system`
 
 ---
