@@ -34,6 +34,14 @@
                 <p class="font-semibold text-gray-600">วันเกิด:</p>
                 <p>{{ profile_user.date_of_birth|date:"d F Y" }}</p>
             </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">วันที่เข้าร่วม:</p>
+                <p>{{ profile_user.date_joined|date:"d F Y" }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="font-semibold text-gray-600">เข้าสู่ระบบล่าสุด:</p>
+                <p>{{ profile_user.last_login|date:"d F Y H:i" }}</p>
+            </div>
         </div>
     </div>
 
@@ -44,6 +52,21 @@
         <a href="{% url 'password_change' %}" class="bg-gray-600 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition duration-300">
             เปลี่ยนรหัสผ่าน
         </a>
+    </div>
+
+    <div class="mt-8 border-t pt-6">
+        <h4 class="text-xl font-semibold mb-4">สถานที่ที่คุณโพสต์</h4>
+        {% if user_places %}
+            <ul class="list-disc list-inside">
+                {% for place in user_places %}
+                    <li>
+                        <a href="{% url 'place_detail' place.id %}" class="text-blue-600 hover:underline">{{ place.place_name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>คุณยังไม่ได้โพสต์สถานที่ใดๆ</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

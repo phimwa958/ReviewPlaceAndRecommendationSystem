@@ -5,22 +5,32 @@
 {% block content %}
 <div class="mb-8">
     <form method="get" action="{% url 'home' %}" class="flex flex-wrap items-center gap-4">
-        <input type="text" name="search" placeholder="ค้นหาสถานที่..." class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" value="{{ search_query|default:'' }}">
+<!-- ปุ่มค้นหาสถานที่ใหม่ -->        
+    <input type="text" name="search" placeholder="ค้นหาสถานที่..." value="{{ search_query|default:'' }}" class="flex-grow p-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-md bg-white/70 backdrop-blur-md"/>
+<!-- ปุ่มค้นหาสถานที่ใหม่ --> 
 
-        <select name="category" class="p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            <option value="">ทุกหมวดหมู่</option>
-            {% for value, display in categories %}
-            <option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>{{ display }}</option>
-            {% endfor %}
-        </select>
-
-        <button type="submit" class="bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700">ค้นหา</button>
-    </form>
+<!-- ปุ่มเลือกหมวดหมู่ใหม่ --> 
+    <div class="flex max-w-xs">
+  <select name="category" class="w-full p-3 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-md bg-white/70 backdrop-blur-md cursor-pointer">
+    <option value="">ทุกหมวดหมู่</option>
+      {% for value, display in categories %}
+      <option value="{{ value }}" {% if value == selected_category %}selected{% endif %}>
+          {{ display }}
+      </option>
+      {% endfor %}
+  </select>
 </div>
+<!-- ปุ่มเลือกหมวดหมู่ใหม่ --> 
+
+<!-- ปุ่มค้นหาใหม่ -->
+    <button type="submit" class="button">ค้นหา<span class="hoverEffect"><div></div>
+    </span>
+    </button>
+</form>
 
 {% if is_search %}
     {# --- Search Results --- #}
-    <h2 class="text-3xl font-bold mb-4">ผลการค้นหาสำหรับ "{{ search_query|default:'' }}"</h2>
+    <h2 class="recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 mb-8 animate-gradient">ผลการค้นหาสำหรับ "{{ search_query|default:'' }}"</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for place in places %}
@@ -38,8 +48,19 @@
     {% if user.is_authenticated and recommended_places %}
     <section class="mb-12">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-3xl font-bold">แนะนำสำหรับคุณ</h2>
-            <a href="{% url 'place_recommendations' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+    <!-- เปลี่ยน คำว่า เเนะสำหรับคุณให้น่าสนใจขึ้น -->  
+            <h2 class="recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 animate-gradient">แนะนำสำหรับคุณ</h2>
+    <!-- เปลี่ยน คำว่า เเนะสำหรับคุณให้น่าสนใจขึ้น --> 
+
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 1 ให้น่าสนใจขึ้น --> 
+    <form action="{% url 'place_recommendations' %}" method="get" style="display:inline;">
+        <button type="submit" class="uiverse-button mt-4"><p>ดูเพิ่มเติม</p><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+        </button>
+    </form>
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 1 ให้น่าสนใจขึ้น --> 
+     
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {% for place in recommended_places %}
@@ -52,8 +73,16 @@
     {% if popular_places %}
     <section class="mb-12">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-3xl font-bold">สถานที่ยอดนิยม</h2>
-            <a href="{% url 'place_popular' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+            <h2 class="recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-4 animate-gradient">สถานที่ยอดนิยม</h2>
+
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 2 ให้น่าสนใจขึ้น -->         
+    <form action="{% url 'place_popular' %}" method="get" style="display:inline;">
+        <button type="submit" class="uiverse-button mt-4"><p>ดูเพิ่มเติม</p><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+    </svg>
+  </button>
+</form>
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 2 ให้น่าสนใจขึ้น --> 
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {% for place in popular_places %}
@@ -66,8 +95,15 @@
     {% if latest_places %}
     <section class="mb-12">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-3xl font-bold">สถานที่ใหม่ล่าสุด</h2>
-            <a href="{% url 'place_all' %}" class="text-blue-600 hover:underline">ดูเพิ่มเติม</a>
+            <h2 class="recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-4 animate-gradient">สถานที่ใหม่ล่าสุด</h2>
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 3 ให้น่าสนใจขึ้น -->         
+    <form action="{% url 'place_all' %}" method="get" style="display:inline;">
+        <button type="submit" class="uiverse-button mt-4"><p>ดูเพิ่มเติม</p><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+    </svg>
+  </button>
+</form>
+    <!-- เปลี่ยน คำว่า ดูเพิ่มเติม 3 ให้น่าสนใจขึ้น --> 
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {% for place in latest_places %}

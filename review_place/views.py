@@ -30,7 +30,8 @@ from recommendations.engine import recommendation_engine
 from recommendations import user_based
 from recommendations.popularity_based import get_popularity_based_recommendations
 from .mixins import OwnerOrStaffRequiredMixin, FormContextMixin, AdminActivityMixin, ImageHandlingMixin
-
+from django.http import JsonResponse
+from .models import Place
 
 User = get_user_model()
 
@@ -86,6 +87,12 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         # Return the currently logged-in user
         return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        context['user_places'] = Place.objects.filter(owner=user).order_by('-created_at')
+        return context
 
 class ProfileUpdateView(FormContextMixin, LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = User
@@ -400,7 +407,7 @@ class ReviewCreateView(ImageHandlingMixin, FormContextMixin, LoginRequiredMixin,
     with_media = True
 
     image_model = ReviewImage
-    image_form_field = 'review_images'
+    image_form_field = 'images'
     image_foreign_key_field = 'review'
 
     def dispatch(self, request, *args, **kwargs):
@@ -448,7 +455,7 @@ class ReviewUpdateView(ImageHandlingMixin, FormContextMixin, LoginRequiredMixin,
     with_media = True
 
     image_model = ReviewImage
-    image_form_field = 'review_images'
+    image_form_field = 'images'
     image_foreign_key_field = 'review'
 
     def handle_no_permission(self):
@@ -718,7 +725,8 @@ class PlaceAllView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'All Places'
+        context['title'] = 'สถานที่ใหม่ทั้งหมด'
+        context['title_class'] = 'recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 animate-gradient'
         return context
 
 class PopularityView(ListView):
@@ -737,7 +745,8 @@ class PopularityView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Popular Places'
+        context['title'] = 'สถานที่ยอดนิยม'
+        context['title_class'] = 'recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 animate-gradient'
         return context
 
 class RecommendationView(LoginRequiredMixin, ListView):
@@ -757,5 +766,57 @@ class RecommendationView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Recommended for You'
+        context['title'] = 'เเนะนำสำหรับคุณ'
+        context['title_class'] = 'recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 animate-gradient'
+        return context
+
+class ViewPlaceReportsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Report
+    template_name = 'review/view_reports.html'
+    context_object_name = 'reports'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        place_id = self.kwargs['place_id']
+        return Report.objects.filter(place_id=place_id).order_by('-reported_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Reports for Place #{self.kwargs['place_id']}"
+        return context
+
+class ViewReviewReportsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Report
+    template_name = 'review/view_reports.html'
+    context_object_name = 'reports'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        review_id = self.kwargs['review_id']
+        return Report.objects.filter(review_id=review_id).order_by('-reported_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Reports for Review #{self.kwargs['review_id']}"
+        return context
+
+class ViewCommentReportsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Report
+    template_name = 'review/view_reports.html'
+    context_object_name = 'reports'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        comment_id = self.kwargs['comment_id']
+        return Report.objects.filter(comment_id=comment_id).order_by('-reported_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Reports for Comment #{self.kwargs['comment_id']}"
         return context

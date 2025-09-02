@@ -91,6 +91,10 @@ class Place(models.Model):
             self.total_reviews = 0
         self.save()
 
+    @property
+    def name(self):
+        return self.place_name
+    
 class PlaceImage(models.Model):
     place = models.ForeignKey(Place, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='places/')

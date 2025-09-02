@@ -4,17 +4,33 @@
 
 {% block content %}
 <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+<div class="min-h-screen bg-white-100 py-10 px-4">
+<div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
     {% if place.images.all %}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-        {% for image in place.images.all %}
-        <img src="{{ image.image.url }}" alt="{{ place.place_name }}" class="w-full h-64 object-cover">
-        {% endfor %}
-    </div>
+        <!-- Swiper container -->
+        <div class="swiper-container relative w-full h-96">
+            <div class="swiper-wrapper">
+                {% for image in place.images.all %}
+                <div class="swiper-slide">
+                    <img src="{{ image.image.url }}" alt="{{ place.place_name }}" 
+                         class="w-full h-96 object-cover rounded-lg">
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Navigation buttons -->
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
+            <!-- Pagination dots -->
+            <div class="swiper-pagination"></div>
+        </div>
     {% else %}
-    <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
-        <span class="text-gray-500 text-2xl">No Image Available</span>
-    </div>
+        <div class="w-full h-96 bg-gray-200 flex items-center justify-center">
+            <span class="text-gray-500 text-2xl">No Image Available</span>
+        </div>
     {% endif %}
+        </div>
 
     <div class="p-8">
         <h1 class="text-4xl font-bold mb-4">{{ place.place_name }}</h1>
@@ -47,88 +63,187 @@
             <h3 class="text-xl font-semibold mb-2">Actions</h3>
             <div class="flex items-center space-x-4 mb-4">
                 {% if user.is_authenticated %}
-                    <form action="{% url 'like_place' place.id %}" method="post" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary">
-                            {% if user_liked_place %}
-                                Unlike
-                            {% else %}
-                                Like
-                            {% endif %}
-                        </button>
-                    </form>
-                {% endif %}
-                <p class="text-gray-700 m-0">{{ total_likes }} like{{ total_likes|pluralize }}</p>
+ <!-- เปลี่ยนไอคอนจากกดไลค์เป็นหัวใจเเละจำนวนไลค์ -->                
+<form action="{% url 'like_place' place.id %}" method="post" class="m-0">
+    {% csrf_token %}
+    <button type="submit" class="like-button {% if user_liked_place %}liked{% endif %}">
+        <!-- Empty heart -->
+        <svg class="empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M16.5,3c-1.74,0-3.41,0.81-4.5,2.09 
+                     C10.91,3.81,9.24,3,7.5,3 
+                     C4.42,3,2,5.42,2,8.5 
+                     c0,3.78,3.4,6.86,8.55,11.54L12,21.35 
+                     l1.45-1.32C18.6,15.36,22,12.28,22,8.5 
+                     C22,5.42,19.58,3,16.5,3z"/>
+        </svg>
+        <!-- Filled heart -->
+        <svg class="filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
+                     2 5.42 4.42 3 7.5 3 
+                     c1.74 0 3.41.81 4.5 2.09 
+                     C13.09 3.81 14.76 3 16.5 3 
+                     19.58 3 22 5.42 22 8.5 
+                     c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        {% if user_liked_place %}Unlike{% else %}Like{% endif %}
+    </button>
+</form>
+
+     {% endif %}
+                <p class="likes-count">{{ total_likes }} like{{ total_likes|pluralize }}</p>
             </div>
+<!-- เปลี่ยนไอคอนจากกดไลค์เป็นหัวใจเเละจำนวนไลค์  -->   
 
             <h3 class="text-xl font-semibold mb-2">Share this Place</h3>
             <div class="flex space-x-4 mb-4">
-                <a href="{{ share_urls.facebook }}" target="_blank" class="text-blue-600 hover:underline share-link" data-shared-to="Facebook">Facebook</a>
-                <a href="{{ share_urls.twitter }}" target="_blank" class="text-blue-400 hover:underline share-link" data-shared-to="X (Twitter)">X (Twitter)</a>
-                <a href="{{ share_urls.linkedin }}" target="_blank" class="text-blue-700 hover:underline share-link" data-shared-to="LinkedIn">LinkedIn</a>
-                <a href="{{ share_urls.line }}" target="_blank" class="text-green-500 hover:underline share-link" data-shared-to="LINE">LINE</a>
+            <button 
+                class="custom-button" 
+                onclick="window.open('{{ share_urls.facebook }}', '_blank'); recordShareActivity('Facebook');">
+                Facebook
+            </button>
+            <button 
+                class="custom-button-twitter"
+                onclick="window.open('{{ share_urls.twitter }}', '_blank'); recordShareActivity('X (Twitter)');">
+                X (Twitter)
+            </button>
+            <button 
+                class="custom-button-linkedin"
+                onclick="window.open('{{ share_urls.linkedin }}', '_blank'); recordShareActivity('LinkedIn');">
+                LinkedIn
+            </button>
+            <button 
+                class="custom-button-line"
+                onclick="window.open('{{ share_urls.line }}', '_blank'); recordShareActivity('LINE');">
+                LINE
+            </button>
             </div>
-            <div class="flex items-center">
-                <input type="text" id="directShareLink" class="flex-grow border rounded-md p-2 mr-2" value="{{ place_absolute_url }}" readonly>
-                <button id="copyShareLink" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Copy Link</button>
+            
+            <div class="card-share">
+            <div class="bg"></div>
+            <div class="blob"></div>
+            
+            </div> <div class="flex items-center"> <input type="text" id="directShareLink" class="flex-grow border rounded-md p-2 mr-2" value="{{ place_absolute_url }}" readonly>
+         
+<!-- ปุ่ม Copy Link -->
+            <button id="copyShareLink" class="copy-button">Copy Link</button>
             </div>
-        </div>
-
+<!-- ปุ่มใหม่เเก้ไขสถานที่ -->
         {% if user.is_authenticated %}
-        <div class="mb-6 flex space-x-4">
-    <a href="{% url 'edit_place' place_id=place.id %}" class="btn btn-warning">แก้ไขสถานที่</a>
-    <a href="{% url 'delete_place' place_id=place.id %}" class="btn btn-danger">ลบสถานที่</a>
-            <a href="{% url 'report_place' place_id=place.id %}" class="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600">Report this Place</a>
-        </div>
+            <div class="mb-8 flex space-x-4">
+                {% if place.owner == user or user.is_staff %}
+                    <a href="{% url 'edit_place' place_id=place.id %}" class="cssbuttons-io-button">
+                    Edit Places
+                    <div class="icon">
+                    <svg
+                    height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                    ><path d="M0 0h24v24H0z" fill="none"></path>
+                    <path
+                    d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                    fill="currentColor"
+                    ></path>
+                    </svg>
+                </div>
+                </a>
+                    <a href="{% url 'delete_place' place_id=place.id %}" class="delete-btn">
+                        <button>
+                            <span>Delete Places</span>
+                        </button>
+                    </a>
+                {% endif %}
+                {% if user.is_staff %}
+                    <a href="{% url 'view_place_reports' place_id=place.id %}" class="report-btn">
+                        <button>
+                            <span>View Reports</span>
+                        </button>
+                    </a>
+                {% elif place.owner != user %}
+                    <a href="{% url 'report_place' place_id=place.id %}" class="report-btn">
+                        <button>
+                            <span>Report this Place</span>
+                        </button>
+                    </a>
+                {% endif %}
+            </div>
         {% else %}
         <p class="mb-6 text-gray-700">Please <a href="{% url 'login' %}?next={{ request.path }}" class="text-blue-600 hover:underline">login</a> to write a review or report this place.</p>
         {% endif %}
-
+<!-- เเก้ไขกรอบของสถานที่เเนะนำในหน้าโพสต์สถานที่  --> 
         <hr class="my-8">
-
         {% if user.is_authenticated and recommended_places %}
-        <div class="recommended-section mb-8">
-            <h2 class="text-3xl font-bold mb-4">Recommended Places</h2>
+        <div class="recommended-section mb-">
+            <h2 class="recommend-title text-3xl font-bold text-transparent bg-clip-text drop-shadow-lg mt-8 animate-gradient mb-4">สถานที่เเนะนำ</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for rec_place in recommended_places %}
-                <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                    {% if rec_place.images.all %}
-                    <img src="{{ rec_place.images.first.image.url }}" alt="{{ rec_place.place_name }}" class="w-full h-48 object-cover">
-                    {% else %}
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+            {% for rec_place in recommended_places %}
+            <div class="bg-white shadow-md rounded-2xl overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl flex flex-col">
+                {% if rec_place.images.all %}
+                    <img src="{{ rec_place.images.first.image.url }}" 
+                        alt="{{ rec_place.place_name }}" 
+                        class="w-full h-56 object-cover">
+                {% else %}
+                    <div class="w-full h-56 bg-gray-200 flex items-center justify-center">
                         <span class="text-gray-500">No Image</span>
                     </div>
-                    {% endif %}
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2">{{ rec_place.place_name }}</h3>
-                        <p class="text-gray-700 mb-1"><span class="font-semibold">Category:</span> {{ rec_place.get_category_display }}</p>
-                        <p class="text-gray-600 mb-4 truncate">{{ rec_place.description|default:"No description available."|truncatewords:15 }}</p>
-                        <a href="{% url 'place_detail' rec_place.id %}" class="block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">View Details</a>
+                {% endif %}
+
+                <div class="p-5 flex flex-col flex-1">
+                    <!-- Place name -->
+                    <h3 class="text-xl font-bold text-gra line-clamp-1">{{ rec_place.place_name }}</h3>
+
+                    <!-- Category -->
+                    <p class="text-sm text-gray-600 mb-1">
+                        <span class="font-medium text-gray-700">Category:</span> {{ rec_place.get_category_display }}
+                    </p>
+
+                    <!-- Description -->
+                    <p class="text-gray-500 text-sm mb-3 line-clamp-2">
+                        {{ rec_place.description|default:"No description available."|slice:":100" }}
+                    </p>
+
+                    <!-- Rating -->
+                    <div class="flex items-center mb-4">
+                        <span class="text-yellow-400 mr-1 text-lg">
+                            {% for i in "12345" %}
+                                {% if rec_place.average_rating >= i|add:0 %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="text-gray-600 text-sm">
+                            ({{ rec_place.average_rating|floatformat:1 }}/5.0) • {{ rec_place.total_reviews }} review{{ rec_place.total_reviews|pluralize }}
+                        </span>
+                    </div>
+
+                    <!-- ดันปุ่มลงล่าง -->
+                    <div class="mt-auto">
+                        <a href="{% url 'place_detail' rec_place.id %}" 
+                        class="block w-full text-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition duration-300">
+                            View Details
+                        </a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            <hr class="my-8">
+            {% endfor %}
         </div>
-        {% endif %}
+        <hr class="my-8">
+  </div>
+            {% endif %} 
+<!-- เเก้ไขกรอบของสถานที่เเนะนำในหน้าโพสต์สถานที่  --> 
 
         <h2 class="text-3xl font-semibold mb-6">Reviews ({{ place.total_reviews }})</h2>
         {% if user.is_authenticated %}
         <div class="mb-4">
-            <a href="{% url 'add_review' place_id=place.id %}" class="btn btn-primary">เพิ่มรีวิว</a>
+            <a href="{% url 'add_review' place_id=place.id %}" class="login-btn">เพิ่มรีวิว</a>
         </div>
         {% endif %}
         {% for review in reviews %}
-        <div class="border rounded-lg p-6 mb-6 bg-gray-50 shadow">
+        <div class="border rounded-lg p-6 mb-4 bg-gray-50 shadow">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center">
                     {% if review.user.profile_image %}
                         <img src="{{ review.user.profile_image.url }}" alt="Profile Image of {{ review.user.username }}" class="w-10 h-10 rounded-full object-cover mr-3">
                     {% else %}
-                        <img src="/static/default.jpg" alt="Default Profile Image" class="w-10 h-10 rounded-full object-cover mr-3">
+                        <img src="/static/default.jpg" alt="Default Profile Image" class="w-16 h-10 rounded-full object-cover mr-3">
                     {% endif %}
                     <div>
-                        <p class="text-lg font-semibold">{{ review.user.username }}</p>
+                        <p class="text-lg font-semibold mb-1 ">{{ review.user.username }}</p>
                         <p class="text-sm text-gray-500">{{ review.review_date|date:"F j, Y, g:i a" }}</p>
                     </div>
                 </div>
@@ -152,11 +267,14 @@
 
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
-                    {% if review.user == user %}
-                    <a href="{% url 'edit_review' review_id=review.id %}" class="text-blue-600 hover:underline">Edit</a>
-                    <a href="{% url 'delete_review' review_id=review.id %}" class="text-red-600 hover:underline">Delete</a>
-                    {% else %}
-                    <a href="{% url 'report_review' review_id=review.id %}" class="text-red-600 hover:underline">Report Review</a>
+                    {% if review.user == user or user.is_staff %}
+                        <a href="{% url 'edit_review' review_id=review.id %}" class="text-blue-600 hover:underline">Edit</a>
+                        <a href="{% url 'delete_review' review_id=review.id %}" class="text-red-600 hover:underline">Delete</a>
+                    {% endif %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'view_review_reports' review_id=review.id %}" class="text-blue-600 hover:underline">View Reports</a>
+                    {% elif review.user != user %}
+                        <a href="{% url 'report_review' review_id=review.id %}" class="text-red-600 hover:underline">Report Review</a>
                     {% endif %}
                 {% endif %}
                 {# Placeholder for helpful count and other actions #}
@@ -192,7 +310,10 @@
                                         {% if user == comment.user or user.is_staff %}
                                             <a href="{% url 'edit_comment' comment_id=comment.id %}" class="text-blue-500 hover:underline">Edit</a>
                                             <a href="{% url 'delete_comment' comment_id=comment.id %}" class="text-red-500 hover:underline">Delete</a>
-                                        {% else %}
+                                        {% endif %}
+                                        {% if user.is_staff %}
+                                            <a href="{% url 'view_comment_reports' comment_id=comment.id %}" class="text-blue-500 hover:underline">View Reports</a>
+                                        {% elif user != comment.user %}
                                             <a href="{% url 'report_comment' comment_id=comment.id %}" class="text-gray-500 hover:underline">Report</a>
                                         {% endif %}
                                     {% endif %}
@@ -218,7 +339,7 @@
         {% endfor %}
     </div>
 </div>
-
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const shareLinks = document.querySelectorAll('.share-link');
@@ -282,5 +403,26 @@
             element.classList.add('hidden');
         }
     }
+
+document.addEventListener("DOMContentLoaded", function() {
+    new Swiper(".swiper-container", {
+        loop: true,              // วนซ้ำ
+        slidesPerView: 1,        // รูปละ 1 เต็มหน้าจอ
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        autoplay: {
+            delay: 4000,         // เลื่อนอัตโนมัติทุก 4 วิ
+            disableOnInteraction: false,
+        },
+    });
+});
+
 </script>
 {% endblock %}
+

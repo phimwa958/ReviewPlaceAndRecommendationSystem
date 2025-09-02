@@ -3,8 +3,10 @@
 {% block title %}{{ title }} - Review Place{% endblock %}
 
 {% block content %}
-<h1 class="text-4xl font-bold mb-8">{{ title }}</h1>
-
+<!-- ใช้ class จาก context -->
+<h1 class="{{ title_class }} mb-6">{{ title }}</h1>
+<div class="container mt-4">
+<!-- ใช้ class จาก context -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for place in places %}
         {% include 'review/partials/place_card.html' with place=place %}
