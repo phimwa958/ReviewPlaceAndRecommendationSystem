@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
-    CustomUser, Report, Place, Review, Comment, UserActivity, PlaceLike
+    CustomUser, Report, Place, Review, Comment, UserActivity, PlaceLike, Notification
 )
 
 # ปรับปรุงการแสดงผล PlaceLike ใน Admin
@@ -62,6 +62,13 @@ class UserActivityAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'activity_type', 'details')
     list_filter = ('activity_type', 'timestamp')
     readonly_fields = ('timestamp',)
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'actor', 'verb', 'unread', 'timestamp')
+    list_filter = ('unread', 'timestamp')
+    search_fields = ('recipient__username', 'actor__username', 'verb')
+
 
 # ลงทะเบียน CustomUserAdmin
 admin.site.register(CustomUser, CustomUserAdmin)

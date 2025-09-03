@@ -31,6 +31,13 @@ urlpatterns = [
     path('place/<int:place_id>/reports/', views.ViewPlaceReportsView.as_view(), name='view_place_reports'),
     path('review/<int:review_id>/reports/', views.ViewReviewReportsView.as_view(), name='view_review_reports'),
     path('comment/<int:comment_id>/reports/', views.ViewCommentReportsView.as_view(), name='view_comment_reports'),
+
+    # Notifications
+    path('notifications/', views.NotificationListView.as_view(), name='notifications'),
+    path('notifications/<int:notification_id>/read/', views.MarkNotificationAsReadView.as_view(), name='notification_mark_as_read'),
+    path('notifications/mark-all-as-read/', views.MarkAllNotificationsAsReadView.as_view(), name='notifications_mark_all_as_read'),
+    path('notifications/<int:notification_id>/delete/', views.DeleteNotificationView.as_view(), name='notification_delete'),
+    path('notifications/delete-all/', views.DeleteAllNotificationsView.as_view(), name='notifications_delete_all'),
     
     # Admin activity visualization
     path('admin/activity/', views.AdminActivityView.as_view(), name='admin_activity'),

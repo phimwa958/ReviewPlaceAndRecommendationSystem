@@ -6,4 +6,4 @@ class ReviewPlaceConfig(AppConfig):
     name = 'review_place'
 
     def ready(self):
-        pass
+        import review_place.signals

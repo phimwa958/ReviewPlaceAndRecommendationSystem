@@ -1,0 +1,37 @@
+{% extends "review/base.html" %}
+
+{% block title %}การแจ้งเตือน - Review Place{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg text-black">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">การแจ้งเตือน</h1>
+        <a href="{% url 'notifications_mark_all_as_read' %}" class="text-blue-600 hover:underline mr-4">ทำเครื่องหมายว่าอ่านทั้งหมด</a>
+        <form action="{% url 'notifications_delete_all' %}" method="post" class="inline-block">
+            {% csrf_token %}
+            <button type="submit" class="text-red-600 hover:underline">ล้างการแจ้งเตือนทั้งหมด</button>
+        </form>
+    </div>
+
+    {% if notifications %}
+        <ul class="space-y-4">
+            {% for notification in notifications %}
+                <li class="p-4 rounded-lg {% if notification.unread %}bg-blue-50{% else %}bg-gray-50{% endif %} flex justify-between items-center">
+                    <a href="{% url 'notification_mark_as_read' notification.id %}" class="block flex-grow">
+                        <p class="font-semibold">{{ notification.actor }} {{ notification.verb }}</p>
+                        <p class="text-sm text-gray-600">{{ notification.timestamp|timesince }} ที่แล้ว</p>
+                    </a>
+                    <form action="{% url 'notification_delete' notification.id %}" method="post" class="ml-4">
+                        {% csrf_token %}
+                        <button type="submit" class="text-red-500 hover:text-red-700 text-sm">ลบ</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>ไม่มีการแจ้งเตือน</p>
+    {% endif %}
+
+    {% include 'review/partials/pagination.html' %}
+</div>
+{% endblock %}

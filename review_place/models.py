@@ -114,6 +114,9 @@ class PlaceLike(models.Model):
     def __str__(self):
         return f'{self.user.username} likes {self.place.place_name}'
 
+    def get_absolute_url(self):
+        return self.place.get_absolute_url()
+
 class Review(models.Model):
     STATUS_CHOICES = [
         ('published', 'เผยแพร่'),
@@ -184,6 +187,9 @@ class Comment(models.Model):
     def __str__(self):
         return f'ความคิดเห็นโดย {self.user.username} บนรีวิวของ {self.review.user.username}'
 
+    def get_absolute_url(self):
+        return self.review.get_absolute_url()
+
 class Report(models.Model):
     REPORT_CHOICES = [
         ('place', 'สถานที่'),
@@ -201,6 +207,15 @@ class Report(models.Model):
 
     def __str__(self):
         return f"รายงาน {self.get_report_type_display()} โดย {self.reported_by.username}"
+
+    def get_absolute_url(self):
+        if self.report_type == 'place':
+            return self.place.get_absolute_url()
+        elif self.report_type == 'review':
+            return self.review.get_absolute_url()
+        elif self.report_type == 'comment':
+            return self.comment.review.get_absolute_url()
+        return reverse('home')
 
 class UserActivity(models.Model):
     ACTIVITY_TYPES = [
@@ -229,3 +244,28 @@ class UserActivity(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.get_activity_type_display()} on {self.timestamp.strftime("%Y-%m-%d %H:%M")}'
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    verb = models.CharField(max_length=255)
+    unread = models.BooleanField(default=True, db_index=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    # Generic relation to link to any model (Place, Review, etc.)
+    target_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, blank=True, null=True, related_name='target')
+    target_object_id = models.PositiveIntegerField(blank=True, null=True)
+    target = GenericForeignKey('target_content_type', 'target_object_id')
+
+    action_object_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, blank=True, null=True, related_name='action_object')
+    action_object_object_id = models.PositiveIntegerField(blank=True, null=True)
+    action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
+
+
+    class Meta:
+        ordering = ('-timestamp',)
+
+    def __str__(self):
+        if self.target:
+            return f'{self.actor.username} {self.verb} {self.target}'
+        return f'{self.actor.username} {self.verb}'

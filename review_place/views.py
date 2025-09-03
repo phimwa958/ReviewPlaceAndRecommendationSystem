@@ -18,7 +18,7 @@ from django.core.paginator import Paginator
 from .forms import (
     RegistrationForm, UserUpdateForm, PlaceForm, ReviewForm, ReportReviewForm, ReportPlaceForm, PasswordUpdateForm, CommentForm, ReportCommentForm
 )
-from .models import  Place, Review, Report, UserActivity, PlaceLike, Comment, PlaceImage, ReviewImage, CustomUser
+from .models import  Place, Review, Report, UserActivity, PlaceLike, Comment, PlaceImage, ReviewImage, CustomUser, Notification
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 import csv
@@ -565,6 +565,7 @@ class RecordShareActivityView(LoginRequiredMixin, View):
             shared_id = int(shared_id)
             if shared_type == 'place':
                 content_object = Place.objects.get(id=shared_id)
+                
             elif shared_type == 'review':
                 content_object = Review.objects.get(id=shared_id)
             else:
@@ -820,3 +821,42 @@ class ViewCommentReportsView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = f"Reports for Comment #{self.kwargs['comment_id']}"
         return context
+
+class NotificationListView(LoginRequiredMixin, ListView):
+    model = Notification
+    template_name = 'review/notifications.html'
+    context_object_name = 'notifications'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return self.request.user.notifications.all()
+
+class MarkNotificationAsReadView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        notification_id = self.kwargs.get('notification_id')
+        notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+        notification.unread = False
+        notification.save()
+        redirect_url = reverse('notifications') # Default fallback
+        if notification.action_object and hasattr(notification.action_object, 'get_absolute_url'):
+            redirect_url = notification.action_object.get_absolute_url()
+        elif notification.target and hasattr(notification.target, 'get_absolute_url'):
+            redirect_url = notification.target.get_absolute_url()
+        return HttpResponseRedirect(redirect_url)
+
+class MarkAllNotificationsAsReadView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        request.user.notifications.update(unread=False)
+        return redirect('notifications')
+
+class DeleteNotificationView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        notification_id = self.kwargs.get('notification_id')
+        notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+        notification.delete()
+        return redirect('notifications')
+
+class DeleteAllNotificationsView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        request.user.notifications.all().delete()
+        return redirect('notifications')
