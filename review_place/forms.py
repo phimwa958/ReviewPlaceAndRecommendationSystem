@@ -115,11 +115,22 @@ class PasswordUpdateForm(PasswordChangeForm):
         self.fields['new_password2'].label = "ยืนยันรหัสผ่านใหม่"
 
 class PlaceForm(forms.ModelForm):
-    images = MultipleImageField(required=False)
+    images = MultipleImageField(required=False, label='อัปโหลดรูปภาพใหม่')
 
     class Meta:
         model = Place
-        fields = ['place_name', 'category', 'location', 'description', 'contact_info', 'price_range', 'open_hours']
+        fields = ['place_name', 'category', 'location', 'description', 'contact_info', 'price_range', 'open_hours', 'images']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            from .models import PlaceImage
+            self.fields['delete_images'] = forms.ModelMultipleChoiceField(
+                queryset=self.instance.images.all(),
+                widget=forms.CheckboxSelectMultiple,
+                required=False,
+                label='เลือกรูปภาพที่จะลบ'
+            )
 
     def clean_images(self):
         images = self.files.getlist('images')
@@ -128,17 +139,28 @@ class PlaceForm(forms.ModelForm):
         return images
 
 class ReviewForm(forms.ModelForm):
-    review_images = MultipleImageField(required=False)
+    images = MultipleImageField(required=False, label='อัปโหลดรูปภาพใหม่')
 
     class Meta:
         model = Review
-        fields = ['review_text', 'rating']
+        fields = ['review_text', 'rating', 'images']
         widgets = {
             'rating': forms.NumberInput(attrs={'min': 1, 'max': 5})
         }
 
-    def clean_review_images(self):
-        images = self.files.getlist('review_images')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            from .models import ReviewImage
+            self.fields['delete_images'] = forms.ModelMultipleChoiceField(
+                queryset=self.instance.images.all(),
+                widget=forms.CheckboxSelectMultiple,
+                required=False,
+                label='เลือกรูปภาพที่จะลบ'
+            )
+
+    def clean_images(self):
+        images = self.files.getlist('images')
         if len(images) > 5:
             raise ValidationError("สามารถอัปโหลดรูปภาพได้สูงสุด 5 รูป")
         return images

@@ -1,23 +1,46 @@
-<div class="bg-white shadow-lg rounded-lg overflow-hidden">
+<div class="bg-white shadow-md rounded-2xl overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl flex flex-col">
     {% if place.images.all %}
-    <img src="{{ place.images.first.image.url }}" alt="{{ place.place_name }}" class="w-full h-48 object-cover">
+        <img src="{{ place.images.first.image.url }}" 
+             alt="{{ place.place_name }}" 
+             class="w-full h-56 object-cover">
     {% else %}
-    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-        <span class="text-gray-500">No Image</span>
-    </div>
+        <div class="w-full h-56 bg-gray-200 flex items-center justify-center">
+            <span class="text-gray-500">No Image</span>
+        </div>
     {% endif %}
-    <div class="p-6">
-        <h3 class="text-2xl font-semibold mb-2">{{ place.place_name }}</h3>
-        <p class="text-gray-700 mb-1"><span class="font-semibold">Category:</span> {{ place.get_category_display }}</p>
-        <p class="text-gray-600 mb-4 truncate">{{ place.description|default:"No description available."|slice:":100" }}</p>
+
+    <div class="p-5 flex flex-col flex-1">
+        <!-- Place name -->
+        <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-1">{{ place.place_name }}</h3>
+
+        <!-- Category -->
+        <p class="text-sm text-gray-600 mb-1">
+            <span class="font-medium text-gray-700">Category:</span> {{ place.get_category_display }}
+        </p>
+
+        <!-- Description -->
+        <p class="text-gray-500 text-sm mb-3 line-clamp-2">
+            {{ place.description|default:"No description available."|slice:":100" }}
+        </p>
+
+        <!-- Rating -->
         <div class="flex items-center mb-4">
-            <span class="text-yellow-500 mr-1">
+            <span class="text-yellow-400 mr-1 text-lg">
                 {% for i in "12345" %}
                     {% if place.average_rating >= i|add:0 %}★{% else %}☆{% endif %}
                 {% endfor %}
             </span>
-            <span class="text-gray-600">({{ place.average_rating|floatformat:1 }}/5.0) from {{ place.total_reviews }} review{{ place.total_reviews|pluralize }}</span>
+            <span class="text-gray-600 text-sm">
+                ({{ place.average_rating|floatformat:1 }}/5.0) • {{ place.total_reviews }} review{{ place.total_reviews|pluralize }}
+            </span>
         </div>
-        <a href="{% url 'place_detail' place.id %}" class="block w-full text-center bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300">View Details</a>
+
+        <!-- ดันปุ่มลงล่าง -->
+        <div class="mt-auto">
+            <a href="{% url 'place_detail' place.id %}" 
+               class="block w-full text-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2.5 rounded-lg font-medium hover:from-blue-600 hover:to-indigo-700 transition duration-300">
+                View Details
+            </a>
+        </div>
     </div>
 </div>

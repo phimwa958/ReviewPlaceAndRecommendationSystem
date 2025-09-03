@@ -66,27 +66,37 @@ class FormContextMixin:
 
 class ImageHandlingMixin:
     """
-    A mixin to handle the creation of related image objects from uploaded files.
+    A mixin to handle the creation and deletion of related image objects.
 
     Views using this mixin must define:
-    - `image_model`: The model class to use for creating image instances (e.g., PlaceImage).
-    - `image_form_field`: The name of the form field for the images (e.g., 'images').
-    - `image_foreign_key_field`: The name of the foreign key field on the image model
-      that links back to the main object (e.g., 'place' or 'review').
+    - `image_model`: The model class for image instances (e.g., PlaceImage).
+    - `image_form_field`: The form field name for new images (e.g., 'images').
+    - `image_foreign_key_field`: The foreign key field on the image model (e.g., 'place').
     """
     image_model = None
     image_form_field = None
     image_foreign_key_field = None
 
     def form_valid(self, form):
+        # Proceed with the default form validation, which saves the main object.
+        # This ensures the main object is valid and saved before we modify related images.
         response = super().form_valid(form)
 
+        # Check for required attributes for image handling.
         if not all([self.image_model, self.image_form_field, self.image_foreign_key_field]):
             raise ImproperlyConfigured(
                 "ImageHandlingMixin requires 'image_model', 'image_form_field', "
-                "and 'image_foreign_key_field' to be set on the view."
+                "and 'image_foreign_key_field' to be set."
             )
 
+        # Handle image deletion.
+        # The form is valid, so 'delete_images' is in cleaned_data if it was submitted.
+        if 'delete_images' in form.cleaned_data:
+            images_to_delete = form.cleaned_data['delete_images']
+            if images_to_delete:
+                images_to_delete.delete()  # Bulk delete selected images
+
+        # Handle new image uploads.
         for image_file in self.request.FILES.getlist(self.image_form_field):
             image_data = {
                 self.image_foreign_key_field: self.object,

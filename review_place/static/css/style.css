@@ -1,0 +1,1005 @@
+/* style.css */
+a {
+  text-decoration: none;
+}
+a {
+  text-decoration: none;
+  color: #000;
+  transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+  color: #FF9900; /* สีตอน hover */
+  transform: scale(1.05); /* ขยายเล็กน้อย */
+}
+/* ใช้กับ container หลัก */
+.glass-container {
+  background: rgba(255, 255, 255, 0.15); /* โปร่งใส */
+  backdrop-filter: blur(10px); /* ทำให้เบลอ */
+  -webkit-backdrop-filter: blur(10px); /* รองรับ Safari */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.modern-btn {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modern-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(37, 117, 252, 0.4);
+}
+
+
+/* Like Button Style */
+.like-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 6px 12px 6px 36px; /* เว้นช่องว่างซ้ายสำหรับหัวใจ */
+    gap: 6px;
+    background-color: #e8e8e8;
+    border: 3px solid #ffe2e2;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #867c7c;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.like-button:hover {
+    background-color: #eee;
+}
+
+/* SVG หัวใจซ้อนกันตรงกลาง */
+.like-button svg {
+    position: absolute;
+    left: 12px;  
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* กำหนดสีหัวใจ */
+.like-button .empty path { fill: #555; }    /* หัวใจสีเทา/ดำเมื่อยังไม่ไลค์ */
+.like-button .filled path { fill: #e63946; } /* หัวใจสีแดงเมื่อไลค์แล้ว */
+
+/* กำหนด opacity ตามสถานะ liked */
+.like-button .filled { opacity: 0; }
+.like-button .empty { opacity: 1; }
+
+/* เมื่อ liked */
+.like-button.liked .filled { opacity: 1; animation: beatingHeart 1s infinite; }
+.like-button.liked .empty { opacity: 0; }
+
+/* Effect เต้นหัวใจ */
+@keyframes beatingHeart {
+    0%, 30%, 60%, 100% { transform: translateY(-50%) scale(1); }
+    15%, 45% { transform: translateY(-50%) scale(1.3); }
+}
+
+
+.likes-count {
+    color: #4b5563; 
+    font-weight: 500;
+    margin: 0; /* ลบ margin เก่าที่ทำให้ลอย */
+}
+
+/* From Uiverse.io by mawi-man */ 
+/* ของ Facebook */ 
+.custom-button {
+  background-color: #e5e8fc; /* Button background color */
+  color: #1835ca; /* Text color */
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 30px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.custom-button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background-color: #a0abf4;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  z-index: -1;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-button:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.9;
+}
+
+.custom-button:hover {
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-5px);
+  color: #1a1a2e;
+}
+
+/* Effect of waves under pressure */
+.custom-button:active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+  z-index: -1;
+}
+
+@keyframes ripple {
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+/* Animated text glow effect */
+.custom-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.3s ease;
+}
+
+.custom-button:hover::after {
+  left: 100%;
+  transition: all 0.5s ease;
+}
+
+/* Twitter Button Style */
+/* ของ Twitter */ 
+.custom-button-twitter {
+  background-color: #dedede;
+  color: #010209;
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 30px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.custom-button-twitter::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background-color: #8b8b8b;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  z-index: -1;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-button-twitter:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.9;
+}
+
+.custom-button-twitter:hover {
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-5px);
+  color: #1a1a2e;
+}
+
+.custom-button-twitter:active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+  z-index: -1;
+}
+
+@keyframes ripple {
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+.custom-button-twitter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.3s ease;
+}
+
+.custom-button-twitter:hover::after {
+  left: 100%;
+  transition: all 0.5s ease;
+}
+
+/* LinkedIn Button Style */
+/* ของ LinkedIn */ 
+.custom-button-linkedin {
+  background-color: #d1ebff;
+  color: #008af7;
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 30px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.custom-button-linkedin::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background-color: #0879d3;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  z-index: -1;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-button-linkedin:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.9;
+}
+
+.custom-button-linkedin:hover {
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-5px);
+  color: #1a1a2e;
+}
+
+.custom-button-linkedin:active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+  z-index: -1;
+}
+
+.custom-button-linkedin::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.3s ease;
+}
+
+.custom-button-linkedin:hover::after {
+  left: 100%;
+  transition: all 0.5s ease;
+}
+
+/* LINE Button Style */
+/* ของ LINE */
+.custom-button-line {
+  background-color: #cbffc8;
+  color: #09bd00;
+  border: none;
+  padding: 15px 30px;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 30px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.custom-button-line::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background-color: #11810b;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  z-index: -1;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.custom-button-line:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.9;
+}
+
+.custom-button-line:hover {
+  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-5px);
+  color: #1a1a2e;
+}
+
+.custom-button-line:active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+  z-index: -1;
+}
+
+.custom-button-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: all 0.3s ease;
+}
+
+.custom-button-line:hover::after {
+  left: 100%;
+  transition: all 0.5s ease;
+}
+
+/* ปรับสไตล์เฉพาะปุ่ม Copy Link */
+.copy-button {
+  color: #090909;
+  padding: 1.2em 1.5em;
+  font-size: 12px;
+  border-radius: 0.8em;
+  background: #e8e8e8;
+  cursor: pointer;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  margin-top: 10px; /* เว้นระยะกับ input */
+ 
+}
+
+.copy-button:active {
+  color: #666;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 10px #ffffff;
+}
+
+/* From Uiverse.io by adamgiebl */ 
+.cssbuttons-io-button {
+  background: #fffdaa;
+  color: #020200;
+  font-family: inherit;
+  padding: 0.30em;
+  padding-left: 1.2em;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 0.5em;
+  border: none;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 0 1.6em -0.6em #714da6;
+  overflow: hidden;
+  position: relative;
+  height: 2.8em;
+  padding-right: 3.3em;
+  cursor: pointer;
+}
+
+.cssbuttons-io-button .icon {
+  background: white;
+  margin-left: 1em;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.0em;
+  width: 2.0em;
+  border-radius: 0.7em;
+  box-shadow: 0.1em 0.1em 0.6em 0.2em #d44815;
+  right: 0.3em;
+  transition: all 0.3s;
+}
+
+.cssbuttons-io-button:hover .icon {
+  width: calc(100% - 0.6em);
+}
+
+.cssbuttons-io-button .icon svg {
+  width: 1.1em;
+  transition: transform 0.3s;
+  color: #ef6800;
+}
+
+.cssbuttons-io-button:hover .icon svg {
+  transform: translateX(0.1em);
+}
+
+.cssbuttons-io-button:active .icon {
+  transform: scale(0.95);
+}
+a.cssbuttons-io-button {
+  text-decoration: none; /* ตัดขีดเส้นใต้ */
+}
+
+/* ปุ่มลบใหม่ ยังไม่เเสดงผล*/ 
+/* Delete button style */
+.delete-btn button {
+  display: inline-block;
+  width: 120px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1.5px solid #e00000;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s ease-in;
+  z-index: 1;
+  background: transparent;
+  cursor: pointer;
+}
+
+.delete-btn button::before,
+.delete-btn button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 100%;
+  transform: skew(15deg);
+  transition: all 0.5s;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.delete-btn button::before {
+  left: -10px;
+  background: #fc1111;
+}
+
+.delete-btn button::after {
+  right: -10px;
+  background: #ff4a4a;
+}
+
+.delete-btn button:hover::before,
+.delete-btn button:hover::after {
+  width: 61%;
+}
+
+.delete-btn button:hover span {
+  color: #ffe2e2;
+  transition: 0.3s;
+}
+
+.delete-btn button span {
+  color: #880109;
+  font-size: 15px;
+  transition: all 0.3s ease-in;
+}
+/* ปุ่มลบใหม่ ยังไม่เเสดงผล*/ 
+
+/* ปุ่มใหม่Report button style */
+.report-btn button {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0.6rem 1rem;
+  margin: 0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.05rem;
+  border-radius: 500px;
+  overflow: hidden;
+  background: #ff3200;
+  color: ghostwhite;
+}
+
+.report-btn button span {
+  position: relative;
+  z-index: 10;
+  transition: color 0.4s;
+}
+
+.report-btn button:hover span {
+  color: black;
+}
+
+.report-btn button::before,
+.report-btn button::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.report-btn button::before {
+  content: "";
+  background: #ff906e;
+  width: 120%;
+  left: -10%;
+  transform: skew(30deg);
+  transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+}
+
+.report-btn button:hover::before {
+  transform: translate3d(100%, 0, 0);
+}
+/* ปุ่มใหม่Report button style */
+
+/* ปุ่ม Logout */
+.Btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: .3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: rgb(65, 87, 255);
+}
+
+.sign {
+  width: 100%;
+  transition-duration: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 17px;
+}
+
+.sign svg path {
+  fill: white;
+}
+
+/* text */
+.text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1.0em;
+  font-weight: 600;
+  transition-duration: .3s;
+}
+
+/* hover effect on button width */
+.Btn:hover {
+  width: 125px;
+  border-radius: 40px;
+  transition-duration: .3s;
+}
+
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: .3s;
+  padding-left: 20px;
+}
+
+/* hover effect button's text */
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: .3s;
+  padding-right: 10px;
+}
+
+/* button click effect */
+.Btn:active {
+  transform: translate(2px ,2px);
+}
+
+form.inline-block {
+  display: inline-block; /* ให้ form อยู่ในแนวเดียวกับ <a> */
+  margin: 0; /* ลบ margin */
+  padding: 0; /* ลบ padding */
+  vertical-align: middle; /* แนวกลางกับ text/ปุ่มอื่น */
+}
+/* ปุ่ม Logout */
+
+/* หน้าเเรกตัวอักษรหลัก */
+.fancy-text {
+  color: #0272d4;
+  text-shadow: 0 0 5px hsl(196, 100%, 84%), 0 0 10px #4facfe;
+  font-weight: bold;
+  transition: text-shadow 0.3s ease-in-out;
+}
+
+.fancy-text:hover {
+  text-shadow: 0 0 10px #ff8a24, 0 0 20px #fff765;
+}
+
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.fancy-text:hover {
+  animation: jump 0.5s infinite;
+}
+/* หน้าเเรกตัวอักษรหลัก */
+
+/* ปุ่มlogin */
+.login-btn {
+  display: inline-block;
+  border: none;
+  color: #fff;
+  background-image: linear-gradient(30deg, #0400ff, #4ce3f7);
+  border-radius: 20px;
+  background-size: 100% auto;
+  font-family: inherit;
+  font-size: 17px;
+  padding: 0.6em 1.5em;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.login-btn:hover {
+  background-position: right center;
+  background-size: 200% auto;
+  -webkit-animation: pulse512 1.5s infinite;
+  animation: pulse512 1.5s infinite;
+}
+
+@keyframes pulse512 {
+  0% {
+    box-shadow: 0 0 0 0 rgba(5, 186, 218, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(218, 103, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(218, 103, 68, 0);
+  }
+}
+/* ปุ่มlogin */
+
+/* ปุ่มRegister */
+.Register-btn {
+  display: inline-block;
+  border: none;
+  color: #000000;
+  background-image: linear-gradient(30deg, hsl(240, 100%, 95%), #fdffff);
+  border-radius: 20px;
+  background-size: 100% auto;
+  font-family: inherit;
+  font-size: 17px;
+  padding: 0.6em 1.5em;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+.Register-btn:hover {
+  background-position: right center;
+  background-size: 200% auto;
+  -webkit-animation: pulse512 1.5s infinite;
+  animation: pulse512 1.5s infinite;
+}
+
+@keyframes pulse512 {
+  0% {
+    box-shadow: 0 0 0 0 rgba(5, 186, 218, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(218, 103, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(218, 103, 68, 0);
+  }
+}
+/* ปุ่มRegister */
+
+
+/* เปลี่ยนช่องกรอกข้อความให้สวนขึ้นเป็นสีฟ้าอ่อน */
+.card:hover {
+  box-shadow: 10px 10px 30px #bebebe,
+              -10px -10px 30px #ffffff;
+  transform: translateY(-5px);
+}
+
+
+.input-custom {
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #f0f4ff, #d9e4ff);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.45rem 1rem;
+  box-shadow: 5px 5px 15px #c1c7e0, -5px -5px 15px #ffffff;
+}
+
+.input-custom:focus {
+  outline: none;
+  box-shadow: inset 0 0 5px #b1cfff, 5px 5px 15px #c1c7e0, -5px -5px 15px #ffffff;
+  background: #e0edff;
+}
+/* เปลี่ยนช่องกรอกข้อความให้สวนขึ้นเป็นสีฟ้าอ่อน */
+
+/* ปุ่มกดค้นหาอ่อนๆสลับสี */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 30px;
+  border: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10rem;
+  transition: all 0.02s;
+  font-weight: bold;
+  cursor: pointer;
+  color: rgb(37, 37, 37);
+  z-index: 0;
+  box-shadow: 0 0px 7px -5px rgba(0, 0, 0, 0.5);
+  background: white; /* ตั้งพื้นหลังเริ่มต้น */
+}
+
+.button:hover {
+  background: rgb(193, 228, 248);
+  color: rgb(33, 0, 85);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.hoverEffect {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.hoverEffect div {
+  background: linear-gradient(
+    90deg,
+    rgb(255, 235, 11) 0%,
+    rgb(223, 165, 255) 49%,
+    rgba(0, 212, 255, 1) 100%
+  );
+  border-radius: 40rem;
+  width: 10rem;
+  height: 10rem;
+  transition: 0.4s;
+  filter: blur(20px);
+  animation: effect infinite 3s linear;
+  opacity: 0.5;
+}
+
+.button:hover .hoverEffect div {
+  width: 8rem;
+  height: 8rem;
+}
+
+@keyframes effect {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/* ปุ่มกดค้นหาอ่อนๆสลับสี */
+
+/* เพิ่ม คำเเนะนำสำหรับคุณให้ดูเด่นขึ้น */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.recommend-title {
+  background-image: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+  background-size: 200% 200%;
+}
+
+.animate-gradient {
+  animation: gradientShift 4s ease infinite;
+}
+
+.uiverse-button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  --primary-color: #007cde;
+  --hovered-color: #c84747;
+  position: relative;
+  display: flex;
+  font-weight: 600;
+  font-size: 17px;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.uiverse-button p {
+  margin: 0;
+  position: relative;
+  font-size: 17px;
+  color: var(--primary-color);
+}
+
+.uiverse-button::after {
+  position: absolute;
+  content: "";
+  width: 0;
+  left: 0;
+  bottom: -7px;
+  background: var(--hovered-color);
+  height: 2px;
+  transition: 0.3s ease-out;
+}
+
+.uiverse-button:hover::after { width: 100%; }
+.uiverse-button:hover p::before { width: 100%; }
+.uiverse-button:hover svg { transform: translateX(4px); color: var(--hovered-color); }
+
+.uiverse-button svg {
+  color: var(--primary-color);
+  transition: 0.2s;
+  position: relative;
+  width: 15px;
+  transition-delay: 0.2s;
+}
+
+.place-card {
+    background-color: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.place-card:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+}
+
+.place-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.place-card:hover .place-image {
+    transform: scale(1.05);
+}
+
+.place-info {
+    padding: 1rem;
+}
+
+.place-info h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.place-info p {
+    font-size: 1rem;
+    color: #555;
+}
+
+
+
+
+
+
+
+
+

@@ -118,74 +118,104 @@
         const timeBasedAnalysisData = JSON.parse('{{ time_based_analysis_data|safe }}');
         const clickActionData = JSON.parse('{{ click_action_data|safe }}');
 
-        // 1. User Activity Chart
-        const uac_ctx = document.getElementById('userActivityChart').getContext('2d', { willReadFrequently: true });
-        const users = Object.keys(userActivityData);
-        const activityTypes = [...new Set(Object.values(userActivityData).flatMap(Object.keys))];
-        const uac_datasets = activityTypes.map(type => ({
-            label: type,
-            data: users.map(user => userActivityData[user][type] || 0),
+// 1. User Activity Chart
+const uac_ctx = document.getElementById('userActivityChart').getContext('2d');
+const users = Object.keys(userActivityData);
+const activityTypes = [...new Set(Object.values(userActivityData).flatMap(Object.keys))];
+
+// palette สี
+const colors = [
+    'rgba(255, 99, 132, 0.6)',
+    'rgba(54, 162, 235, 0.6)',
+    'rgba(255, 206, 86, 0.6)',
+    'rgba(75, 192, 192, 0.6)',
+    'rgba(153, 102, 255, 0.6)',
+    'rgba(255, 159, 64, 0.6)'
+];
+
+const uac_datasets = activityTypes.map((type, i) => ({
+    label: type,
+    data: users.map(user => userActivityData[user][type] || 0),
+    backgroundColor: colors[i % colors.length],
+    borderColor: colors[i % colors.length].replace("0.6", "1"),
+    borderWidth: 1
+}));
+
+new Chart(uac_ctx, {
+    type: 'bar',
+    data: { labels: users, datasets: uac_datasets },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true }, x: { stacked: true } }
+    }
+});
+
+// 2. Content Popularity Chart
+const cpc_ctx = document.getElementById('contentPopularityChart').getContext('2d');
+new Chart(cpc_ctx, {
+    type: 'bar',
+    data: {
+        labels: contentPopularityData.map(d => d.name),
+        datasets: [{
+            label: 'Popularity (Views/Shares)',
+            data: contentPopularityData.map(d => d.count),
+            backgroundColor: colors
+        }]
+    },
+    options: { indexAxis: 'y', responsive: true }
+});
+
+// 3. Sharing Behavior Chart (Pie)
+const sbc_ctx = document.getElementById('sharingBehaviorChart').getContext('2d');
+new Chart(sbc_ctx, {
+    type: 'pie',
+    data: {
+        labels: Object.keys(sharingBehaviorData),
+        datasets: [{
+            data: Object.values(sharingBehaviorData),
+            backgroundColor: colors
+        }]
+    },
+    options: { responsive: true }
+});
+
+// 4. Time-Based Analysis Chart (Line)
+const tbc_ctx = document.getElementById('timeBasedChart').getContext('2d');
+new Chart(tbc_ctx, {
+    type: 'line',
+    data: {
+        labels: Object.keys(timeBasedAnalysisData),
+        datasets: [{
+            label: 'Total Activities',
+            data: Object.values(timeBasedAnalysisData),
+            fill: true,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.3,
+            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+            pointRadius: 5
+        }]
+    },
+    options: { responsive: true }
+});
+
+// 5. Click Action Analysis Chart
+const cac_ctx = document.getElementById('clickActionChart').getContext('2d');
+new Chart(cac_ctx, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(clickActionData),
+        datasets: [{
+            label: 'Click Count',
+            data: Object.values(clickActionData),
+            backgroundColor: colors,
+            borderColor: colors.map(c => c.replace("0.6", "1")),
             borderWidth: 1
-        }));
-        new Chart(uac_ctx, {
-            type: 'bar',
-            data: { labels: users, datasets: uac_datasets },
-            options: { scales: { y: { beginAtZero: true }, x: { stacked: true } }, responsive: true }
-        });
+        }]
+    },
+    options: { responsive: true }
+});
 
-        // 2. Content Popularity Chart
-        const cpc_ctx = document.getElementById('contentPopularityChart').getContext('2d', { willReadFrequently: true });
-        new Chart(cpc_ctx, {
-            type: 'bar',
-            data: {
-                labels: contentPopularityData.map(d => d.name),
-                datasets: [{
-                    label: 'Popularity (Views/Shares)',
-                    data: contentPopularityData.map(d => d.count),
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
-                }]
-            },
-            options: { indexAxis: 'y', responsive: true }
-        });
-
-        // 3. Sharing Behavior Chart
-        const sbc_ctx = document.getElementById('sharingBehaviorChart').getContext('2d', { willReadFrequently: true });
-        new Chart(sbc_ctx, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(sharingBehaviorData),
-                datasets: [{ data: Object.values(sharingBehaviorData) }]
-            },
-            options: { responsive: true }
-        });
-
-        // 4. Time-Based Analysis Chart
-        const tbc_ctx = document.getElementById('timeBasedChart').getContext('2d', { willReadFrequently: true });
-        new Chart(tbc_ctx, {
-            type: 'line',
-            data: {
-                labels: Object.keys(timeBasedAnalysisData),
-                datasets: [{
-                    label: 'Total Activities',
-                    data: Object.values(timeBasedAnalysisData),
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: { responsive: true }
-        });
-
-        // 5. Click Action Analysis Chart
-        const cac_ctx = document.getElementById('clickActionChart').getContext('2d', { willReadFrequently: true });
-        new Chart(cac_ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(clickActionData),
-                datasets: [{ label: 'Click Count', data: Object.values(clickActionData) }]
-            },
-            options: { responsive: true }
-        });
     });
 </script>
 {% endblock %}
