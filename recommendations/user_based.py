@@ -108,16 +108,21 @@ def rebuild_user_similarity_cache():
 
 # Note: The decorator needs a class instance to work, so we can't decorate a standalone function
 # in the same way. We will handle the locking logic inside the getter function instead.
-def get_user_collaborative_filtering_data(force_refresh=False):
+def get_user_collaborative_filtering_data(force_refresh=False, allow_rebuild=False):
     """
-    Gets the user collaborative filtering data (similarity matrix and user-item matrix) from cache.
-    If it's not available, it triggers a rebuild using a lock.
+    Gets user collaborative filtering data from cache.
+    If not available, it can trigger a rebuild if `allow_rebuild` is True.
     """
     if not force_refresh:
         cached_value = cache.get(cache_keys.USER_COLLABORATIVE_FILTERING_DATA_KEY)
         if cached_value is not None:
             logger.debug(f"Serving '{cache_keys.USER_COLLABORATIVE_FILTERING_DATA_KEY}' from cache.")
             return cached_value
+
+    if not allow_rebuild:
+        logger.warning(f"User collaborative filtering data not found in cache. "
+                       f"Rebuild not allowed in this context. Returning empty data.")
+        return {}
 
     lock_key = f"user_collab_lock:{cache_keys.USER_COLLABORATIVE_FILTERING_DATA_KEY}"
     lock_timeout = 600
@@ -133,7 +138,8 @@ def get_user_collaborative_filtering_data(force_refresh=False):
     else:
         logger.info(f"Cache build for '{cache_keys.USER_COLLABORATIVE_FILTERING_DATA_KEY}' is locked. Waiting...")
         time.sleep(5)
-        return get_user_collaborative_filtering_data(force_refresh=False)
+        # In a waiting scenario, we should not force a rebuild, just try to get the value again.
+        return get_user_collaborative_filtering_data(force_refresh=False, allow_rebuild=False)
 
 
 def get_user_based_recommendations(user_id, collab_data, num_recommendations=10, filter_interacted=True):

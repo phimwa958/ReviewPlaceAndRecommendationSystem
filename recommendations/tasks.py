@@ -6,7 +6,7 @@ from datetime import timedelta
 from django.conf import settings
 import redis
 from review_place.models import CustomUser
-from recommendations import cache_keys
+from recommendations import cache_keys, user_based, data_utils
 from recommendations.engine import recommendation_engine
 
 logger = logging.getLogger(__name__)
@@ -46,14 +46,19 @@ def schedule_global_rebuild_if_needed(self):
 @shared_task
 def rebuild_global_recommendation_caches():
     """
-    Rebuilds shared caches (similarity matrix, item profiles).
+    Rebuilds all shared caches required by the recommendation system.
+    This is the single source of truth for rebuilding caches.
     """
     lock_key = 'global_rebuild_lock'
     logger.info("Starting proactive global cache rebuild.")
     try:
-        cache.delete(cache_keys.CLEANED_DATA_KEY)
+        # First, rebuild the base cleaned data, allowing it to write to the cache.
+        data_utils.load_and_clean_all_data(force_refresh=True, allow_rebuild=True)
+
+        # Now, rebuild the other caches that depend on the cleaned data.
         recommendation_engine.rebuild_user_similarity_cache()
         recommendation_engine.rebuild_scaled_item_profiles_cache()
+
         logger.info("Finished proactive global cache rebuild.")
     finally:
         release_lock(lock_key)
@@ -81,11 +86,21 @@ def generate_batch_recommendations():
         logger.info("No active users found for batch processing.")
         return
 
+    # Pre-fetch collaborative filtering data once before the loop.
+    # force_refresh=True ensures we get the latest data, not a potentially stale cache.
+    # allow_rebuild=True is critical for the background task to be able to build the cache.
+    collab_data = user_based.get_user_collaborative_filtering_data(force_refresh=True, allow_rebuild=True)
+
+    if not collab_data or collab_data.get('user_item_matrix') is None or collab_data.get('user_item_matrix').empty:
+        logger.error("Failed to generate batch recommendations: Collaborative filtering data is not available or empty.")
+        return
+
     logger.info(f"Found {active_users.count()} active users for batch processing.")
 
     for user in active_users:
         try:
-            scores = recommendation_engine._compute_hybrid_scores(user.id)
+            # Pass the pre-fetched collab_data to the scoring function
+            scores = recommendation_engine._compute_hybrid_scores(user.id, collab_data)
             if scores:
                 key = cache_keys.batch_recommendations_key(user.id)
                 timeout = recommendation_engine.cache_config.get('GLOBAL_CACHE_TIMEOUT', 3600 * 2)

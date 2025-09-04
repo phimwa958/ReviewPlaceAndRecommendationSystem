@@ -110,13 +110,24 @@ def clean_interactions_df(df, interaction_type):
 
 # --- Data Loading and Caching ---
 
-def load_and_clean_all_data(force_refresh=False):
+def load_and_clean_all_data(force_refresh=False, allow_rebuild=False):
     cache_config = settings.RECOMMENDATION_SETTINGS.get('CACHING', {})
     if not force_refresh:
         cached_data = cache.get(cache_keys.CLEANED_DATA_KEY)
         if cached_data is not None:
-            logger.info("Serving cleaned data from cache.")
+            logger.debug("Serving cleaned data from cache.")
             return cached_data
+
+    if not allow_rebuild:
+        logger.warning("Cleaned data not found in cache. Rebuild not allowed in this context.")
+        return {
+            'users_df': pd.DataFrame(),
+            'places_df': pd.DataFrame(),
+            'reviews_df': pd.DataFrame(),
+            'likes_df': pd.DataFrame(),
+            'visits_df': pd.DataFrame(),
+            'shares_df': pd.DataFrame()
+        }
 
     logger.info("Loading and cleaning all data from database.")
     users_df = _clean_users_df(get_user_data())

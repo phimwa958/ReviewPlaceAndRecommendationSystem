@@ -110,7 +110,7 @@ def _calculate_content_similarity(user_profile, item_profiles):
 
 def _rebuild_scaled_item_profiles():
     logger.info("Starting scaled item profiles computation.")
-    cleaned_data = data_utils.load_and_clean_all_data(force_refresh=True)
+    cleaned_data = data_utils.load_and_clean_all_data(force_refresh=True, allow_rebuild=True)
     places_df = cleaned_data['places_df']
     if places_df.empty: return pd.DataFrame()
     users_df = cleaned_data['users_df']
@@ -134,10 +134,17 @@ def rebuild_scaled_item_profiles_cache():
         logger.error(f"Error rebuilding scaled item profiles cache: {e}")
         return pd.DataFrame()
 
-def get_scaled_item_profiles(force_refresh=False):
+def get_scaled_item_profiles(force_refresh=False, allow_rebuild=False):
     if not force_refresh:
         cached_value = cache.get(cache_keys.SCALED_PROFILES_KEY)
-        if cached_value is not None: return cached_value
+        if cached_value is not None:
+            return cached_value
+
+    if not allow_rebuild:
+        logger.warning(f"Scaled item profiles not found in cache. "
+                       f"Rebuild not allowed in this context. Returning empty data.")
+        return pd.DataFrame()
+
     lock_key = f"item_profiles_lock:{cache_keys.SCALED_PROFILES_KEY}"
     if cache.add(lock_key, 'building', timeout=600):
         try:
@@ -146,7 +153,7 @@ def get_scaled_item_profiles(force_refresh=False):
             cache.delete(lock_key)
     else:
         time.sleep(5)
-        return get_scaled_item_profiles(force_refresh=False)
+        return get_scaled_item_profiles(force_refresh=False, allow_rebuild=False)
 
 def get_content_based_recommendations(user_id, collab_data, num_recommendations=10, filter_interacted=True):
     logger.info(f"CBF: Starting content-based recommendations for user {user_id}")
