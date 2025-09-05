@@ -12,53 +12,17 @@ from recommendations.decorators import cache_with_build_lock
 logger = logging.getLogger(__name__)
 
 
-def _rebuild_user_similarity_matrix():
+def _rebuild_user_similarity_matrix(cleaned_data):
     """
-    Core logic to compute the user similarity matrix using iterators for memory efficiency.
+    Core logic to compute the user similarity matrix from cleaned data.
     """
-    logger.info("Starting user similarity matrix computation using iterators.")
+    logger.info("Starting user similarity matrix computation.")
 
-    rec_settings = settings.RECOMMENDATION_SETTINGS
-    REVIEW_MAX = rec_settings['REVIEW_MAX']
-    LIKE_WEIGHT = rec_settings['LIKE_WEIGHT']
-    VISIT_WEIGHT = rec_settings['VISIT_WEIGHT']
-    SHARE_WEIGHT = rec_settings.get('SHARE_WEIGHT', 0.4)
+    all_interactions = data_utils.get_all_scored_interactions(cleaned_data)
 
-    chunk_size = 2000
-    interaction_chunks = []
-
-    # Process reviews
-    for chunk in data_utils.chunked_iterator(data_utils.get_review_data(use_iterator=True), chunk_size):
-        df_chunk = data_utils.clean_interactions_df(pd.DataFrame(list(chunk)), 'reviews')
-        interaction_chunks.append(df_chunk.assign(score=df_chunk['rating'] / REVIEW_MAX)[['user_id', 'place_id', 'score']])
-
-    # Process likes
-    for chunk in data_utils.chunked_iterator(data_utils.get_like_data(use_iterator=True), chunk_size):
-        df_chunk = data_utils.clean_interactions_df(pd.DataFrame(list(chunk)), 'likes')
-        interaction_chunks.append(df_chunk.assign(score=LIKE_WEIGHT)[['user_id', 'place_id', 'score']])
-
-    # Process visits
-    for chunk in data_utils.chunked_iterator(data_utils.get_visit_data(use_iterator=True), chunk_size):
-        # The iterator returns dicts with 'object_id', so we must rename it here.
-        df_chunk_raw = pd.DataFrame(list(chunk))
-        if not df_chunk_raw.empty:
-            df_chunk_renamed = df_chunk_raw.rename(columns={'object_id': 'place_id'})
-            df_chunk_cleaned = data_utils.clean_interactions_df(df_chunk_renamed, 'visits')
-            interaction_chunks.append(df_chunk_cleaned.assign(score=VISIT_WEIGHT)[['user_id', 'place_id', 'score']])
-
-    # Process shares
-    for chunk in data_utils.chunked_iterator(data_utils.get_share_data(use_iterator=True), chunk_size):
-        df_chunk_raw = pd.DataFrame(list(chunk))
-        if not df_chunk_raw.empty:
-            df_chunk_renamed = df_chunk_raw.rename(columns={'object_id': 'place_id'})
-            df_chunk_cleaned = data_utils.clean_interactions_df(df_chunk_renamed, 'shares')
-            interaction_chunks.append(df_chunk_cleaned.assign(score=SHARE_WEIGHT)[['user_id', 'place_id', 'score']])
-
-    if not interaction_chunks:
+    if all_interactions.empty:
         logger.warning("No interaction data available for similarity matrix.")
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
-
-    all_interactions = pd.concat(interaction_chunks, ignore_index=True)
 
     user_item_df = all_interactions.groupby(['user_id', 'place_id'])['score'].sum().unstack().fillna(0)
     if user_item_df.empty:
@@ -82,13 +46,13 @@ def _rebuild_user_similarity_matrix():
     logger.info("Finished user similarity matrix computation.")
     return user_similarity_df, user_item_df, all_interactions
 
-def rebuild_user_similarity_cache():
+def rebuild_user_similarity_cache(cleaned_data):
     """
     Computes and caches the user similarity matrix and the user-item matrix.
     This function is intended to be called by a cache-building process (e.g., a task).
     """
     try:
-        user_similarity_df, user_item_matrix, all_interactions = _rebuild_user_similarity_matrix()
+        user_similarity_df, user_item_matrix, all_interactions = _rebuild_user_similarity_matrix(cleaned_data)
         if not user_similarity_df.empty and not user_item_matrix.empty and not all_interactions.empty:
             data_to_cache = {
                 'similarity_matrix': user_similarity_df,

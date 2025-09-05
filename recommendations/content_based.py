@@ -108,9 +108,8 @@ def _calculate_content_similarity(user_profile, item_profiles):
     similarity_scores = cosine_similarity(scaled_user_profile, scaled_item_profiles)
     return pd.DataFrame(similarity_scores.T, index=item_profiles.index, columns=['similarity'])
 
-def _rebuild_scaled_item_profiles():
+def _rebuild_scaled_item_profiles(cleaned_data):
     logger.info("Starting scaled item profiles computation.")
-    cleaned_data = data_utils.load_and_clean_all_data(force_refresh=True, allow_rebuild=True)
     places_df = cleaned_data['places_df']
     if places_df.empty: return pd.DataFrame()
     users_df = cleaned_data['users_df']
@@ -121,9 +120,9 @@ def _rebuild_scaled_item_profiles():
     scaled_profiles_values = scaler.fit_transform(unscaled_profiles.values)
     return pd.DataFrame(scaled_profiles_values, index=unscaled_profiles.index)
 
-def rebuild_scaled_item_profiles_cache():
+def rebuild_scaled_item_profiles_cache(cleaned_data):
     try:
-        scaled_profiles_df = _rebuild_scaled_item_profiles()
+        scaled_profiles_df = _rebuild_scaled_item_profiles(cleaned_data)
         if not scaled_profiles_df.empty:
             cache_config = settings.RECOMMENDATION_SETTINGS.get('CACHING', {})
             timeout = cache_config.get('GLOBAL_CACHE_TIMEOUT', 3600 * 2)

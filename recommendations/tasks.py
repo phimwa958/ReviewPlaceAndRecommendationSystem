@@ -52,12 +52,15 @@ def rebuild_global_recommendation_caches():
     lock_key = 'global_rebuild_lock'
     logger.info("Starting proactive global cache rebuild.")
     try:
-        # First, rebuild the base cleaned data, allowing it to write to the cache.
-        data_utils.load_and_clean_all_data(force_refresh=True, allow_rebuild=True)
+        # Load data once and pass it down to the other rebuild functions.
+        cleaned_data = data_utils.load_and_clean_all_data(force_refresh=True, allow_rebuild=True)
 
-        # Now, rebuild the other caches that depend on the cleaned data.
-        recommendation_engine.rebuild_user_similarity_cache()
-        recommendation_engine.rebuild_scaled_item_profiles_cache()
+        if not cleaned_data or cleaned_data.get('places_df').empty:
+            logger.error("Aborting global rebuild: Cleaned data is empty.")
+            return
+
+        recommendation_engine.rebuild_user_similarity_cache(cleaned_data)
+        recommendation_engine.rebuild_scaled_item_profiles_cache(cleaned_data)
 
         logger.info("Finished proactive global cache rebuild.")
     finally:

@@ -93,13 +93,13 @@ class RecommendationEngine:
     # --- Cache Rebuilding Facade ---
     # These methods provide a clean API for the Celery tasks to call.
 
-    def rebuild_user_similarity_cache(self):
+    def rebuild_user_similarity_cache(self, cleaned_data):
         """Triggers the rebuild of the user similarity cache."""
-        return user_based.rebuild_user_similarity_cache()
+        return user_based.rebuild_user_similarity_cache(cleaned_data)
 
-    def rebuild_scaled_item_profiles_cache(self):
+    def rebuild_scaled_item_profiles_cache(self, cleaned_data):
         """Triggers the rebuild of the scaled item profiles cache."""
-        return content_based.rebuild_scaled_item_profiles_cache()
+        return content_based.rebuild_scaled_item_profiles_cache(cleaned_data)
 
     # --- Data Loading Facade ---
 
